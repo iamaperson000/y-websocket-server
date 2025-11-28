@@ -1,14 +1,16 @@
-{
-  "name": "y-websocket-server",
-  "version": "1.0.0",
-  "main": "server.js",
-  "type": "module",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "ws": "^8.13.0",
-    "y-websocket": "^1.5.4",
-    "yjs": "^13.6.15"
-  }
-}
+import { WebsocketServer } from "y-websocket";
+import http from "http";
+
+const port = process.env.PORT || 1234;
+
+// Create HTTP → WS bridge
+const server = http.createServer();
+
+const wss = new WebsocketServer(server, {
+  // Optional: make rooms auto-clean when empty
+  gc: true
+});
+
+server.listen(port, () => {
+  console.log("🚀 y-websocket server running on port", port);
+});
