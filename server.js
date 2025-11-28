@@ -1,21 +1,21 @@
-import http from "http";
-import WebSocket from "ws";
-import setupWSConnection from "y-websocket/bin/utils.js";
+import { execFile } from "child_process";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-const port = process.env.PORT || 1234;
+// Path to the server binary inside node_modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const serverPath = `${__dirname}/node_modules/y-websocket/bin/server.js`;
 
-const server = http.createServer();
-const wss = new WebSocket.Server({ noServer: true });
+const port = process.env.PORT || "1234";
 
-server.on("upgrade", (req, socket, head) => {
-  const handleAuth = () => {
-    wss.handleUpgrade(req, socket, head, (ws) => {
-      setupWSConnection(ws, req);
-    });
-  };
-  handleAuth();
+console.log("Starting y-websocket server on port", port);
+
+// Run the official server as a subprocess
+const child = execFile("node", [serverPath, port], {
+  stdio: "inherit"
 });
 
-server.listen(port, () => {
-  console.log(`🚀 y-websocket server running on port ${port}`);
+child.on("exit", (code) => {
+  console.error("y-websocket server exited with code", code);
 });
